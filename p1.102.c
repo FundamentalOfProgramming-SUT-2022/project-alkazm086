@@ -5,6 +5,10 @@
 
 
     char loc2[100];
+    int gio=0;// \"
+    int gio2=0;// "
+    int inter1=0;// \n
+    int inter2=0;// \\n
 
     //int length = str_length(str);
     int str_length(char str[]) {
@@ -15,11 +19,22 @@
     }
 
 
+    int sum_arr(int arr[],int b){
+        int sum=0;
+        for(int i=1;i<b;i++){
+            sum+= (arr[i]-1);
+        }
+        return sum;
+    }
+
+
 
     void infun(){
 
-        char s_g , tmploc , op_file[5];
+        char s_g , tmploc, tloc1=' ', tloc2=' ', op_file[5];
         int i = 0;
+        gio=0;
+        gio2=0;
         FILE *file;
         scanf("%s" , op_file);
         getchar();//for space
@@ -36,15 +51,38 @@
                 loc2[i] = '/';
                 i++;
             }
-            else if(tmploc == '\n'){//for end
+            else if( tmploc == '\n' ){//for end
                 loc2[i] = '\0';
                 break;//To not scan more
             }
-            else if(tmploc == '"');//for ignore "
+            /*else if( (tmploc == 'n') && (tloc1=='\\' ) && (tloc2=='\\' ) ){
+                loc2[i] = '\n';
+                break;//To not scan more
+            }*/
+            //else if( (tmploc == '\\') && (tloc1!='\\' ) );//for ignore /* \ */
+            else if( (tmploc == '"') && (tloc1=='\\' ) ){
+                gio++;
+                loc2[i]=tmploc;
+                i++;
+            }//for ignore \"
+            //else if(  ){}
+            else if( (tmploc == '"') ){gio2++;}//for ignore "
+            else if( (tmploc == 'n') && (tloc1=='\\' ) && (tloc2=='\\' ) ){
+                inter2++;
+                loc2[i]=tmploc;
+                i++;
+            }
+            else if( (tmploc == 'n') && (tloc1=='\\' ) && (tloc2!='\\' ) ){
+                inter1++;
+                loc2[i]=tmploc;
+                i++;
+            }
             else{//for tmploc-->loc2;
                     loc2[i]=tmploc;
                 i++;
             }
+            tloc2=tloc1;
+            tloc1=tmploc;
         }
         return;
     }
@@ -193,6 +231,8 @@
                     ja++;
                 }
                 if(chofln!=0)chln[inter+1]=chofln;
+                //printf("%d", str_length(cmd_i) );
+                //printf("%d", txtfile[14]);
                 //printf("%d", charkolinter-inter);
                 //printf("%d", ja);//ja=charkolinter-inter+1
                 //line=inter+1
@@ -203,24 +243,45 @@
                 else{
 
                     ptr = fopen(loc2 , "w");
-                    for(int r=0;r<charkolinter;r++){
-                        //if( (r<)||(r>) ){fprintf(ptr , "%c" , txtfile[r]);}
-                        //else if(1){}
+                    int g=0;
+
+                    for(int r=0;r<charkolinter+str_length(cmd_i);r++){
+                            //fprintf(ptr , "%c" , txtfile[r]);insertstr -file /root/1.txt -str 1234 -pos 4:5
+                        g = r- ( sum_arr(chln, p2) + p1 + p2 - 1 );
+                        if( (r< ( sum_arr(chln, p2) + p1 + p2 - 1 ) )){fprintf(ptr , "%c" , txtfile[r]);}
+                        else if( (r>( sum_arr(chln, p2) + p1 + p2 + str_length(cmd_i) - 2 ) )  ){fprintf(ptr , "%c" , txtfile[r-str_length(cmd_i)]);}
+                        else{
+
+                            if((cmd_i[g]=='\\') && (cmd_i[g+1]=='\\') && (cmd_i[g+2]=='n') ){fprintf(ptr , "%c" , '\\');fprintf(ptr , "%c" , 'n');r+=2; }
+                            else if((cmd_i[g-1]!='\\') && (cmd_i[g]=='\\') && (cmd_i[g+1]=='n') ){fprintf(ptr , "%c" , '\n');r+=1; }
+                            else if((cmd_i[g]=='\\') && (cmd_i[g+1]!='n') && (cmd_i[g+2]!='n') ){fprintf(ptr , "%c" , '\\');}
+                            //fprintf(ptr , "%c" , '*');
+                            //else if( ( (cmd_i[g]!='\\')||(g==0) ) && (cmd_i[g+1]=='\\') && (cmd_i[g+2]=='n') ){fprintf(ptr , "%c" , '&');}
+                            //else
+                            //if(cmd_i[r]!='\0'){}
+                            else {
+                                    fprintf(ptr , "%c" , cmd_i[g]);
+                            }
+                            //else{}
+                            //fprintf(ptr , "%c" , '*');
+
+                        }
                         //else{}
-                        fprintf(ptr , "%c" , txtfile[r]);
+                        //fprintf(ptr , "%c" , txtfile[r]);
                     }
                     /****************************************/
-                    for(int r=0;r<100;r++){
+                    /*for(int r=0;r<100;r++){
                         //if( (r<)||(r>) ){fprintf(ptr , "%c" , txtfile[r]);}
                         //else if(1){}
                         //else{}
-                        if(cmd_i[r]!='\0'){ fprintf(ptr , "%c" , cmd_i[r]);}
+                        if((cmd_i[r]=='\\') && (cmd_i[r+1]=='\\') && (cmd_i[r+2]=='n') ){fprintf(ptr , "%c" , '\n'); r+=2; }
+                        else if(cmd_i[r]!='\0'){ fprintf(ptr , "%c" , cmd_i[r]);}
                         //else if(cmd_i[r+1]!='\0' || cmd_i[r+2]!='\0'){}
                         //else{break;}
 
-                    }
+                    }*/
                     //fprintf(ptr , "%c" , '8');
-
+                    printf("The operation was successful!\n");
                     fclose(ptr);
 
                 }
@@ -229,13 +290,13 @@
             printf("No file with the given address exists!\n");
         }
 
-        //printf("%d", chln[ 11 ]);
         /*if(p2>inter+1){printf("Out of range (line)!");}
         else if(p1>linechar){printf("out of range (character of line)!");}*/
 
         //for(int k=1;k<100;k++){printf("%c", txtfile[k]);}
 
-        //printf("%d", inter);
+        //printf("%s", cmd_i);
+        //printf("%d", sum_arr(chln, 4) );
 
         return;
     }
