@@ -302,6 +302,38 @@
     }
 
 
+    void cat(){
+        infun();
+        char txt;
+        FILE *ptr;
+        int d1=0,d2=0;
+        if( (ptr = fopen(loc2 , "r") ) != NULL){
+            ptr = fopen(loc2 , "r");
+            while(! feof(ptr)){
+                fscanf(ptr , "%c" , &txt );
+                d1++;
+            }
+            fclose(ptr);
+            ptr = fopen(loc2 , "r");
+            while( (! feof(ptr)) && (d1-d2>1) ){
+                fscanf(ptr , "%c" , &txt );
+                printf("%c", txt);
+                d2++;
+            }
+            //printf("%d", d1);
+            printf("\n");
+            fclose(ptr);
+        }
+        else{
+            printf("No file with the given address exists!\n");
+        }
+
+        //printf("%s", loc2);
+
+        return;
+    }
+
+
     int main(){
 
         char cmd[100];
@@ -314,6 +346,7 @@
 
             if(strcmp(cmd , "creatfile") == 0){creatfile();}
             else if(strcmp(cmd , "insertstr") == 0){insertstr();}
+            else if(strcmp(cmd , "cat") == 0){cat();}
             else if(strcmp(cmd , "exit") == 0){break;}
             else{
                 if(last == '\n') printf("invalid command!\n");
